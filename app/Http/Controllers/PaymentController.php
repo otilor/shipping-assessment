@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -18,11 +19,11 @@ class PaymentController extends Controller
             'user_id' => Auth::id(),
             'amount' => $request->amount,
             'status' => 'pending',
-            // Normally you would also interact with a payment gateway here
+            // Normally we would also interact with a payment gateway here
         ]);
 
         // Simulate transaction ID assignment from payment gateway
-        $payment->transaction_id = 'TXN' . str_pad($payment->id, 8, "0", STR_PAD_LEFT);
+        $payment->transaction_id = collect(['paystack', 'flutterwave', 'fincra'])->random() . '_' . Str::random(16);
         $payment->save();
 
         return response()->json([
