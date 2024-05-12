@@ -3,12 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DeliveryStatus;
+use App\Http\Requests\DeliveryRequest;
 use App\Models\Shipment;
+use App\Repositories\DeliveryRepository;
 use Illuminate\Http\Request;
 use App\Models\Delivery;
 
 class DeliveryController extends Controller
 {
+    public function __construct(public DeliveryRepository $repository)
+    {
+
+    }
+
     // List all deliveries
     public function index()
     {
@@ -20,19 +27,9 @@ class DeliveryController extends Controller
     }
 
     // Create a new delivery
-    public function store(Request $request)
+    public function store(DeliveryRequest $request)
     {
-        $request->validate([
-            'description' => 'required|string',
-            'weight' => 'required|numeric|between:0,999.99'
-        ]);
-
-        $delivery = Delivery::create([
-            'tracking_number' => mt_rand(10000001, 90000001),
-            'description' => $request->description,
-            'weight' => $request->weight,
-            'status' => DeliveryStatus::IN_TRANSIT,
-        ]);
+        $delivery = $this->repository->create($request);
 
         return response()->json([
             'message' => 'Delivery created successfully!',
@@ -51,13 +48,8 @@ class DeliveryController extends Controller
     }
 
     // Update a delivery
-    public function update(Request $request, $id)
+    public function update(DeliveryRequest $request, $id)
     {
-        $request->validate([
-            'description' => 'required|string',
-            'weight' => 'required|numeric|between:0,999.99'
-        ]);
-
         $delivery = Delivery::query()->where('tracking_number', $id)->firstOrFail();
         $delivery->update([
             'description' => $request->description,
