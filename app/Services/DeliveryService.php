@@ -19,13 +19,19 @@ class DeliveryService implements DeliveryRepository
         ]);
     }
 
-    public function update(): Collection
+    public function update($request, $id): \Illuminate\Database\Eloquent\Model
     {
-        // TODO: Implement update() method.
+        $delivery = Delivery::query()->where('tracking_number', $id)->firstOrFail();
+        $delivery->update([
+            'description' => $request->description,
+            'weight' => $request->weight
+        ]);
+
+        return $delivery;
     }
 
-    public function retrieve($tracking_number): Collection
+    public function retrieve($tracking_number): \Illuminate\Database\Eloquent\Model
     {
-        // TODO: Implement retrieve() method.
+        return Delivery::query()->where('tracking_number', $tracking_number)->firstOrFail();
     }
 }

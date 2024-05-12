@@ -10,7 +10,7 @@ interface DeliveryRepository
 {
     public function create(Request $request): Model;
 
-    public function update(): Collection;
+    public function update(Request $request, $id): Model;
 
-    public function retrieve($tracking_number): Collection;
+    public function retrieve($tracking_number): Model;
 }

@@ -40,21 +40,15 @@ class DeliveryController extends Controller
     // Retrieve a specific delivery
     public function show($id)
     {
-        $delivery = Delivery::query()->where('tracking_number', $id)->firstOrFail();
-
         return response()->json([
-            'delivery' => $delivery,
+            'delivery' => $this->repository->retrieve($id),
         ], 200);
     }
 
     // Update a delivery
     public function update(DeliveryRequest $request, $id)
     {
-        $delivery = Delivery::query()->where('tracking_number', $id)->firstOrFail();
-        $delivery->update([
-            'description' => $request->description,
-            'weight' => $request->weight
-        ]);
+        $delivery = $this->repository->update($request, $id);
 
         return response()->json([
             'message' => 'Delivery updated successfully!',
