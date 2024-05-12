@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ShipmentStatus;
+use App\Http\Requests\ShipmentRequest;
+use App\Repositories\ShipmentRepository;
 use Illuminate\Http\Request;
 use App\Models\Shipment;
 
 class ShippingController extends Controller
 {
+    public function __construct(public ShipmentRepository $repository)
+    {
+    }
     // List all shipments
     public function index()
     {
@@ -19,20 +24,9 @@ class ShippingController extends Controller
     }
 
     // Create a new shipment
-    public function store(Request $request)
+    public function store(ShipmentRequest $request)
     {
-        $request->validate([
-            'description' => 'required|string',
-            'weight' => 'required|numeric|between:0,999.99'
-
-        ]);
-
-        $shipment = Shipment::create([
-            'tracking_number' => mt_rand(10000001, 90000001),
-            'description' => $request->description,
-            'weight' => $request->weight,
-            'status' => ShipmentStatus::IN_TRANSIT
-        ]);
+        $shipment = $this->repository->create($request);
 
         return response()->json([
             'message' => 'Shipment created successfully!',
@@ -43,7 +37,7 @@ class ShippingController extends Controller
     // Retrieve a specific shipment
     public function show($id)
     {
-        $shipment = Shipment::query()->where('tracking_number', $id)->firstOrFail();
+        $shipment = $this->repository->retrieve($id);
 
         return response()->json([
             'shipment' => $shipment,
@@ -51,18 +45,9 @@ class ShippingController extends Controller
     }
 
     // Update a shipment
-    public function update(Request $request, $id)
+    public function update(ShipmentRequest $request, $id)
     {
-        $request->validate([
-            'description' => 'required|string',
-            'weight' => 'required|numeric|between:0,999.99'
-        ]);
-
-        $shipment = Shipment::query()->where('tracking_number', $id)->firstOrFail();
-        $shipment->update([
-            'description' => $request->description,
-            'weight' => $request->weight
-        ]);
+        $shipment = $this->repository->update($request, $id);
 
         return response()->json([
             'message' => 'Shipment updated successfully!',
